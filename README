@@ -2,7 +2,7 @@
 
 Ce projet permet de :
 
-1. Récupérer les avis d’applications depuis **Google Play** et **App Store**.
+1. Récupérer les avis d’applications depuis **Google Play**
 2. Stocker les données dans **MongoDB**.
 3. Nettoyer et analyser les avis via **Machine Learning** pour prédire un score.
 
@@ -30,7 +30,7 @@ Ce projet permet de :
 pip install -r requirements.txt
 ```
 
-> ⚠️ Si l’installation de `app_store_scraper` échoue via `requirements.txt`, essayez :
+> Si l’installation de `app_store_scraper` échoue via `requirements.txt`, essayez :
 >
 > ```bash
 > pip install app-store-scraper
