@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, accuracy_score
 from sklearn.utils.class_weight import compute_class_weight
 import nltk
 from nltk.corpus import stopwords
@@ -25,8 +25,7 @@ conn.close()
 print(f"{len(df)} lignes récupérées depuis MySQL")
 
 # --- 2. Prétraitement minimal des commentaires ---
-# convertir en minuscules et supprimer la ponctuation
-df['content'] = df['content'].str.lower().str.replace('[^\w\s]', '', regex=True)
+df['content'] = df['content'].str.lower().str.replace(r'[^\w\s]', '', regex=True)
 df = df.dropna(subset=['content', 'score'])
 df = df.reset_index(drop=True)
 
@@ -48,26 +47,27 @@ lr_model = LogisticRegression(max_iter=10000, class_weight=class_weight_dict)
 lr_model.fit(X_train_tfidf, y_train)
 y_pred_lr = lr_model.predict(X_test_tfidf)
 mse_lr = mean_squared_error(y_test, y_pred_lr)
-print(f"Logistic Regression - MSE sur test : {mse_lr:.4f}")
+acc_lr = accuracy_score(y_test, y_pred_lr)
+print(f"Logistic Regression - MSE : {mse_lr:.4f}, Accuracy : {acc_lr:.4f}")
 
-# --- 7. Modèle 2 : Random Forest Classifier ---
-rf_model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced')
+# --- 7. Modèle 2 : Random Forest Classifier optimisé ---
+rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    class_weight='balanced',
+    max_features='sqrt',
+    max_depth=20
+)
 rf_model.fit(X_train_tfidf, y_train)
 y_pred_rf = rf_model.predict(X_test_tfidf)
 mse_rf = mean_squared_error(y_test, y_pred_rf)
-print(f"Random Forest Classifier - MSE sur test : {mse_rf:.4f}")
+acc_rf = accuracy_score(y_test, y_pred_rf)
+print(f"Random Forest - MSE : {mse_rf:.4f}, Accuracy : {acc_rf:.4f}")
 
-# --- 8. Préférences / importance des features (optionnel) ---
-# Logistic Regression : coefficients des mots les plus influents
+# --- 8. Préférences / importance des features pour Logistic Regression ---
 feature_names = vectorizer.get_feature_names_out()
 coef_lr = lr_model.coef_[0]
+
 top_pos_lr = sorted(zip(feature_names, coef_lr), key=lambda x: x[1], reverse=True)[:10]
 top_neg_lr = sorted(zip(feature_names, coef_lr), key=lambda x: x[1])[:10]
 
-print("\nTop 10 mots positifs (LogisticRegression) :")
-for w, v in top_pos_lr:
-    print(w, f"{v:.3f}")
-
-print("\nTop 10 mots négatifs (LogisticRegression) :")
-for w, v in top_neg_lr:
-    print(w, f"{v:.3f}")
