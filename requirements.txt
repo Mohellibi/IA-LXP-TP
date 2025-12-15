@@ -1,0 +1,8 @@
+wordcloud
+matplotlib
+pandas
+google-play-scraper
+app-store-scraper
+urllib3==1.26.18
+pymongo
+

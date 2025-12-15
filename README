@@ -1,0 +1,8 @@
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+
+# Si l'installation de app_store_scraper échoue via requirements.txt,
+# essayez : pip install app-store-scraper
+
+pour scrapp et envoyer dans mongoDB
+python scrapp_to_mongodb.py
