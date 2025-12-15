@@ -1,8 +1,69 @@
+# Projet Scraping & Analyse des Avis Google Play / App Store
+
+Ce projet permet de :
+
+1. Récupérer les avis d’applications depuis **Google Play** et **App Store**.
+2. Stocker les données dans **MongoDB**.
+3. Nettoyer et analyser les avis via **Machine Learning** pour prédire un score.
+
+---
+
+## Prérequis
+
+* Python 3.11 ou supérieur
+* MySQL Workbench / serveur MySQL (optionnel pour la partie ML)
+* MongoDB (Atlas ou local)
+
+---
+
+## Installation
+
+1. Activer l’environnement virtuel :
+
+```bash
 .\.venv\Scripts\activate
+```
+
+2. Installer les dépendances :
+
+```bash
 pip install -r requirements.txt
+```
 
-# Si l'installation de app_store_scraper échoue via requirements.txt,
-# essayez : pip install app-store-scraper
+> ⚠️ Si l’installation de `app_store_scraper` échoue via `requirements.txt`, essayez :
+>
+> ```bash
+> pip install app-store-scraper
+> ```
 
-pour scrapp et envoyer dans mongoDB
+---
+
+## Scraping et envoi dans MongoDB
+
+1. Configurer l’URI MongoDB dans `scrapp_to_mongodb.py`.
+2. Lancer le script :
+
+```bash
 python scrapp_to_mongodb.py
+```
+
+Le script récupérera les avis pour plusieurs pays et les enverra dans la collection MongoDB définie.
+
+---
+
+## Analyse et Machine Learning
+
+1. Lancer le script :
+
+```bash
+python Mysql_ML.py
+```
+* Les scripts Mysql_ML.py récupèrent les données depuis MySQL, nettoient les commentaires et entraînent :
+
+  * **Logistic Regression** (avec TF-IDF)
+  * **RidgeClassifier** (alternative stable pour TF-IDF)
+
+* Le script renvoie :
+
+  * MSE et Accuracy pour chaque modèle
+
