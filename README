@@ -67,3 +67,13 @@ python Mysql_ML.py
 
   * MSE et Accuracy pour chaque modèle
 
+
+
+  Pour le TP du jour 2:
+
+1. Lancer le script :
+
+```bash
+python model_image.py
+
+```
