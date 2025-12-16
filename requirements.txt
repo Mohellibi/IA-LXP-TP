@@ -10,3 +10,6 @@ mysql-connector-python
 scikit-learn
 nltk
 numpy
+tensorflow
+matplotlib
+pillow 
