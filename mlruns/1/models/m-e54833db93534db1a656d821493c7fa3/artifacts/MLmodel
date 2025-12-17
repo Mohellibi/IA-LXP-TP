@@ -1,0 +1,22 @@
+artifact_path: file:C:/Users/yanis/OneDrive/Documents/M2 Data/lxp IA/mlruns/1/models/m-e54833db93534db1a656d821493c7fa3/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.1
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+mlflow_version: 3.7.0
+model_id: m-e54833db93534db1a656d821493c7fa3
+model_size_bytes: 4229411
+model_uuid: m-e54833db93534db1a656d821493c7fa3
+prompts: null
+run_id: e779cc9c93a948b5878134b72805cb96
+utc_time_created: '2025-12-17 10:38:23.534053'
