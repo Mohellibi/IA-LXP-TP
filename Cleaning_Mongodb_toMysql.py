@@ -13,7 +13,7 @@ MYSQL_USER = "root"
 MYSQL_PASSWORD = "!4$b7WsJwM5&eznjCS#C"
 MYSQL_HOST = "localhost"
 MYSQL_PORT = 3306
-MYSQL_DB = "Googlereviews"
+MYSQL_DB = "BIGDATA3"
 MYSQL_TABLE = "google_reviews"
 
 # --- 1. Récupération des données depuis MongoDB ---

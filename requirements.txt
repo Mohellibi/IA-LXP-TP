@@ -14,3 +14,6 @@ tensorflow
 matplotlib
 pillow 
 mlflow
+transformers
+torch
+tf-keras

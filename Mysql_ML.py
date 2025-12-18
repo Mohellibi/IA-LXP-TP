@@ -3,6 +3,8 @@
 # =========================
 import pandas as pd
 import numpy as np
+import pickle
+import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -23,6 +25,7 @@ import mlflow.sklearn
 # MLflow config
 # =========================
 EXPERIMENT_NAME = "google_reviews_sentiment"
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 
@@ -45,7 +48,7 @@ conn = mysql.connector.connect(**MYSQL_CONFIG)
 df = pd.read_sql("SELECT * FROM google_reviews", conn)
 conn.close()
 
-print(f"✅ {len(df)} lignes récupérées depuis MySQL")
+print(f" {len(df)} lignes récupérées depuis MySQL")
 
 # =========================
 # 2. Preprocessing
@@ -93,6 +96,15 @@ vectorizer = TfidfVectorizer(
 X_train_tfidf = vectorizer.fit_transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
 
+# Save the fitted vectorizer to a local file for API use
+print(f"Current working directory in Mysql_ML.py: {os.getcwd()}")
+try:
+    with open("fitted_vectorizer.pkl", "wb") as f:
+        pickle.dump(vectorizer, f)
+    print("Vectorizer saved to fitted_vectorizer.pkl successfully.")
+except Exception as e:
+    print(f"Error saving vectorizer: {e}")
+
 
 # ==========================================================
 # 6. Logistic Regression
@@ -121,7 +133,7 @@ with mlflow.start_run(run_name="LogisticRegression"):
 
     mlflow.sklearn.log_model(lr_model, name="model")
 
-    print(f"📌 LogisticRegression | accuracy={accuracy:.4f} | mse={mse:.4f}")
+    print(f" LogisticRegression | accuracy={accuracy:.4f} | mse={mse:.4f}")
 
 
 # ==========================================================
@@ -155,25 +167,29 @@ with mlflow.start_run(run_name="RandomForest"):
 
     mlflow.sklearn.log_model(rf_model, name="model")
 
-    print(f"📌 RandomForest | accuracy={accuracy:.4f} | mse={mse:.4f}")
+    print(f" RandomForest | accuracy={accuracy:.4f} | mse={mse:.4f}")
 
 
 # =========================
-# 8. Feature importance (LR)
+# Feature Importance
 # =========================
+import matplotlib.pyplot as plt
+
+# Get feature importances from the Random Forest model
+importances = rf_model.feature_importances_
+
+# Get the indices of the top 10 features
+indices = np.argsort(importances)[-10:]
+
+# Get the feature names
 feature_names = vectorizer.get_feature_names_out()
-coef = lr_model.coef_[0]
 
-top_positive = sorted(
-    zip(feature_names, coef),
-    key=lambda x: x[1],
-    reverse=True
-)[:10]
+# Plot the top 10 features
+plt.figure(figsize=(10, 6))
+plt.title("Top 10 Features - Random Forest")
+plt.barh(range(len(indices)), importances[indices], align="center")
+plt.yticks(range(len(indices)), [feature_names[i] for i in indices])
+plt.xlabel("Importance")
+plt.savefig("feature_importance.png")
+print("Feature importance plot saved to feature_importance.png")
 
-top_negative = sorted(
-    zip(feature_names, coef),
-    key=lambda x: x[1]
-)[:10]
-
-print("\ Top mots positifs :", top_positive)
-print(" Top mots négatifs :", top_negative)

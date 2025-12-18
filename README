@@ -2,17 +2,19 @@
 
 Ce projet permet de :
 
-1. Récupérer les avis d’applications depuis **Google Play**
-2. Stocker les données dans **MongoDB**.
-3. Nettoyer et analyser les avis via **Machine Learning** pour prédire un score.
+1. Récupérer les avis d’applications depuis **Google Play** ([google-play-scraper](https://github.com/JoMingyu/google-play-scraper)).
+2. Stocker les données dans **MongoDB** ([PyMongo](https://pymongo.readthedocs.io/en/stable/)).
+3. Nettoyer et analyser les avis via **Machine Learning** pour prédire un score ([scikit-learn](https://scikit-learn.org/stable/)).
+4. Servir des prédictions via une API ou un site web ([Flask](https://flask.palletsprojects.com/en/3.0.x/)).
 
 ---
 
 ## Prérequis
 
 * Python 3.11 ou supérieur
-* MySQL Workbench / serveur MySQL (optionnel pour la partie ML)
-* MongoDB (Atlas ou local)
+* MySQL Workbench / serveur MySQL ([MySQL](https://dev.mysql.com/downloads/mysql/))
+* MongoDB (Atlas ou local) ([MongoDB](https://www.mongodb.com/))
+* Environnement virtuel Python
 
 ---
 
@@ -38,43 +40,95 @@ pip install -r requirements.txt
 
 ---
 
-## Scraping et envoi dans MongoDB
+## Utilisation : Ordre des Commandes
 
-1. Configurer l’URI MongoDB dans `scrapp_to_mongodb.py`.
-2. Lancer le script :
+Suivez ces étapes dans l'ordre pour exécuter le pipeline complet :
 
-```bash
-python scrapp_to_mongodb.py
-```
+1. **Scraping des avis Google Play et stockage dans MongoDB** :
+   ```bash
+   python Scrapp_google_to_mongodb.py
+   ```
+   - Récupère les avis depuis Google Play pour plusieurs pays.
+   - Stocke dans MongoDB Atlas.
 
-Le script récupérera les avis pour plusieurs pays et les enverra dans la collection MongoDB définie.
+2. **Nettoyage des données MongoDB et insertion dans MySQL** :
+   ```bash
+   python Cleaning_Mongodb_toMysql.py
+   ```
+   - Nettoie les données (supprime doublons, colonnes inutiles).
+   - Insère dans MySQL.
+
+3. **Entraînement des modèles ML et sauvegarde** :
+   ```bash
+   python Mysql_ML.py
+   ```
+   - Entraîne LogisticRegression et RandomForest sur les données MySQL.
+   - Sauvegarde le vectorizer et les modèles via MLflow.
+
+4. **Lancement de l'API de prédiction** :
+   ```bash
+   python api_mlflow_rf.py
+   ```
+   - Démarre l'API Flask sur `http://127.0.0.1:5001`.
+   - Utilise un modèle pré-entraîné pour prédire les notes (1-5 étoiles).
+
+5. **(Optionnel) Lancement du pipeline complet (ML + API)** :
+   ```bash
+   python run_pipeline.py
+   ```
+   - Exécute Mysql_ML.py puis démarre l'API.
+
+6. **(Optionnel) Lancement du site web pour tester les prédictions** :
+   ```bash
+   python web_app.py
+   ```
+   - Ouvre un site web sur `http://127.0.0.1:5002` avec un formulaire pour saisir des commentaires.
 
 ---
 
-## Analyse et Machine Learning
+## Descriptions des Scripts
 
-1. Lancer le script :
+### Scrapp_google_to_mongodb.py
+- **Fonction** : Scraping des avis Google Play Store.
+- **Bibliothèques** : [google-play-scraper](https://github.com/JoMingyu/google-play-scraper), [PyMongo](https://pymongo.readthedocs.io/en/stable/).
+- **Sortie** : Données insérées dans MongoDB.
 
-```bash
-python Mysql_ML.py
-```
-* Les scripts Mysql_ML.py récupèrent les données depuis MySQL, nettoient les commentaires et entraînent :
+### Cleaning_Mongodb_toMysql.py
+- **Fonction** : Nettoyage des données MongoDB et export vers MySQL.
+- **Bibliothèques** : [PyMongo](https://pymongo.readthedocs.io/en/stable/), [SQLAlchemy](https://www.sqlalchemy.org/).
+- **Sortie** : Table MySQL remplie.
 
-  * **Logistic Regression** (avec TF-IDF)
-  * **RidgeClassifier** (alternative stable pour TF-IDF)
+### Mysql_ML.py
+- **Fonction** : Entraînement de modèles ML (LogisticRegression, RandomForest) sur données MySQL.
+- **Bibliothèques** : [scikit-learn](https://scikit-learn.org/stable/), [MLflow](https://mlflow.org/).
+- **Sortie** : Modèles et vectorizer sauvegardés, métriques affichées.
 
-* Le script renvoie :
+### api_mlflow_rf.py
+- **Fonction** : API Flask pour prédictions de notes (utilise modèle pré-entraîné).
+- **Bibliothèques** : [Flask](https://flask.palletsprojects.com/en/3.0.x/), [transformers](https://huggingface.co/docs/transformers/index).
+- **Sortie** : API REST sur port 5001.
 
-  * MSE et Accuracy pour chaque modèle
+### run_pipeline.py
+- **Fonction** : Lance Mysql_ML.py puis l'API.
+- **Bibliothèques** : subprocess (standard Python).
 
+### web_app.py
+- **Fonction** : Site web simple pour saisir des commentaires et voir les prédictions.
+- **Bibliothèques** : [Flask](https://flask.palletsprojects.com/en/3.0.x/), [transformers](https://huggingface.co/docs/transformers/index).
+- **Sortie** : Interface web sur port 5002.
 
+---
 
-  Pour le TP du jour 2:
+## Test de l'API avec Postman
 
-dans le dossier pour le TP 2:
-1. Lancer le script :
+- URL : `http://127.0.0.1:5001/predict`
+- Méthode : POST
+- Body (JSON) : `{"text": "Votre commentaire ici"}`
+- Réponse : `{"input": "Votre commentaire ici", "prediction": 5, "confidence": 0.95}`
 
-```bash
-python model_image.py
+---
 
-```
+## Notes
+- Assurez-vous que MongoDB et MySQL sont configurés avec les bonnes credentials.
+- Les modèles pré-entraînés offrent de meilleurs résultats que les modèles custom.
+- Pour des logs détaillés, consultez la console lors de l'exécution.

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Rating Predictor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        textarea { width: 100%; height: 100px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Predict Comment Rating</h1>
+    <form method="post">
+        <label for="text">Enter your comment:</label><br>
+        <textarea name="text" id="text" required></textarea><br><br>
+        <button type="submit">Predict Rating</button>
+    </form>
+    
+    {% if error %}
+        <div class="result error">{{ error }}</div>
+    {% elif prediction %}
+        <div class="result">
+            <strong>Predicted Rating:</strong> {{ prediction }} stars<br>
+            <strong>Confidence:</strong> {{ confidence }}
+        </div>
+    {% endif %}
+</body>
+</html>
